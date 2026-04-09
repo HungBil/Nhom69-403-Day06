@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vinfast</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --blue: #0048ff;
+        --blue-dark: #0033cc;
+        --white: #ffffff;
+        --black: #111111;
+        --gray: #666666;
+        --light: #f5f5f5;
+        --font-head: "Playfair Display", serif;
+        --font-body: "Montserrat", sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        color: var(--black);
+        background: var(--white);
+        overflow-x: hidden;
+      }
+
+      /* ─── NAVBAR ─── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        height: 72px;
+        background: rgba(255, 255, 255, 0.97);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(8px);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: 2px;
+        color: var(--black);
+        text-decoration: none;
+      }
+      .nav-logo svg {
+        width: 36px;
+        height: 36px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        list-style: none;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: var(--black);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--blue);
+      }
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .btn-account {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--blue);
+        text-decoration: none;
+        letter-spacing: 0.5px;
+      }
+      .btn-trial {
+        background: var(--blue);
+        color: var(--white);
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 22px;
+        letter-spacing: 0.5px;
+        transition: background 0.2s;
+      }
+      .btn-trial:hover {
+        background: var(--blue-dark);
+      }
+      .hamburger {
+        font-size: 22px;
+        cursor: pointer;
+        color: var(--black);
+        background: none;
+        border: none;
+      }
+
+      /* ─── HERO ─── */
+      .hero {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        margin-top: 72px;
+        overflow: hidden;
+      }
+      .hero-bg {
+        width: 100%;
+        height: 100%;
+        background: url("https://vinfastauto.com/themes/porto/files/ve-chung-toi/banner-ve-chung-toi.jpg")
+          center/cover no-repeat;
+        /* Fallback gradient representing the factory/robot imagery */
+        background-color: #1a1a2e;
+        background-image: linear-gradient(
+          135deg,
+          #0d0d1a 0%,
+          #1a2040 30%,
+          #0d1a33 60%,
+          #111 100%
+        );
+      }
+      .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.3) 0%,
+          rgba(0, 0, 0, 0.5) 100%
+        );
+      }
+      /* Robot arms decorative SVG illustration */
+      .hero-factory-art {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .factory-grid {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 0;
+        opacity: 0.15;
+      }
+      .factory-grid span {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: flicker 3s infinite alternate;
+      }
+      .factory-grid span:nth-child(3n) {
+        animation-delay: 0.5s;
+        background: rgba(0, 72, 255, 0.1);
+      }
+      .factory-grid span:nth-child(5n) {
+        animation-delay: 1.2s;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      @keyframes flicker {
+        0% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Animated car silhouette on hero */
+      .hero-car-silhouette {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        animation: slideUp 1.2s 0.6s forwards;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(40px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      /* ─── ABOUT SECTION ─── */
+      .about {
+        display: flex;
+        align-items: center;
+        padding: 120px 80px;
+        gap: 80px;
+        min-height: 80vh;
+      }
+      .about-text {
+        flex: 0 0 380px;
+      }
+      .about-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--gray);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+      }
+      .about-title {
+        font-family: var(--font-head);
+        font-size: 52px;
+        font-weight: 700;
+        line-height: 1.1;
+        color: var(--black);
+        margin-bottom: 32px;
+      }
+      .about-desc {
+        font-size: 15px;
+        line-height: 1.8;
+        color: var(--gray);
+        margin-bottom: 20px;
+      }
+      .about-car {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .about-car img {
+        width: 100%;
+        max-width: 700px;
+        filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.15));
+        animation: floatCar 4s ease-in-out infinite;
+      }
+      @keyframes floatCar {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+      /* Placeholder car SVG */
+      .car-placeholder {
+        width: 600px;
+        height: 280px;
+        position: relative;
+      }
+
+      /* ─── VISION BANNER ─── */
+      .vision-banner {
+        position: relative;
+        width: 100%;
+        height: 520px;
+        overflow: hidden;
+      }
+      .vision-bg {
+        width: 100%;
+        height: 100%;
+        background: url("https://vinfastauto.com/themes/porto/files/ve-chung-toi/factory-aerial.jpg")
+          center/cover no-repeat;
+        background-color: #2d4a2d;
+        background-image: linear-gradient(
+          160deg,
+          #1a3a1a 0%,
+          #2d5a2d 40%,
+          #1a4030 70%,
+          #0d2020 100%
+        );
+        transform: scale(1.05);
+        transition: transform 0.1s;
+      }
+      .vision-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.2) 0%,
+          rgba(0, 0, 0, 0.65) 100%
+        );
+      }
+      .vision-aerial-art {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* Road / campus illustration */
+      .campus-art {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+      .campus-road {
+        position: absolute;
+        bottom: 35%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3px;
+        height: 45%;
+        background: linear-gradient(
+          to top,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+      }
+      .campus-circle {
+        position: absolute;
+        bottom: 33%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 80px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+      }
+      .vision-cards {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .vision-card {
+        padding: 36px 32px;
+        color: var(--white);
+        background: rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(4px);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background 0.3s;
+      }
+      .vision-card:last-child {
+        border-right: none;
+      }
+      .vision-card:hover {
+        background: rgba(0, 72, 255, 0.3);
+      }
+      .vision-card h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+      .vision-card p {
+        font-size: 13px;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      /* ─── GLOBAL FOOTPRINT ─── */
+      .footprint {
+        padding: 120px 80px;
+        text-align: center;
+      }
+      .section-title {
+        font-family: var(--font-head);
+        font-size: 44px;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+      .section-sub {
+        font-size: 15px;
+        color: var(--gray);
+        max-width: 680px;
+        margin: 0 auto 60px;
+        line-height: 1.7;
+      }
+      .car-lineup {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        margin-bottom: 80px;
+      }
+      .car-item {
+        position: relative;
+      }
+      .car-item .car-name {
+        position: absolute;
+        top: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 80px;
+        font-weight: 800;
+        color: rgba(0, 0, 0, 0.05);
+        letter-spacing: -2px;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .car-item img {
+        width: 100%;
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.12));
+      }
+
+      /* ─── BRAND HISTORY ─── */
+      .history {
+        padding: 80px;
+        background: var(--white);
+      }
+      .history-title {
+        font-family: var(--font-head);
+        font-size: 44px;
+        text-align: center;
+        margin-bottom: 60px;
+      }
+      .timeline-nav {
+        display: flex;
+        justify-content: center;
+        gap: 32px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 12px;
+      }
+      .timeline-year {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray);
+        cursor: pointer;
+        padding-bottom: 14px;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -14px;
+        transition:
+          color 0.2s,
+          border-color 0.2s;
+      }
+      .timeline-year.active {
+        color: var(--blue);
+        border-color: var(--blue);
+      }
+      .timeline-year:hover {
+        color: var(--blue);
+      }
+      .history-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+      .history-card {
+        cursor: pointer;
+      }
+      .history-card img {
+        width: 100%;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+        display: block;
+        margin-bottom: 16px;
+        transition: transform 0.3s;
+      }
+      .history-card:hover img {
+        transform: scale(1.03);
+      }
+      .history-card .hdate {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 8px;
+      }
+      .history-card .hdesc {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--gray);
+      }
+
+      /* ─── FOOTER ─── */
+      footer {
+        background: #111;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 60px 80px 40px;
+      }
+      .footer-top {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        margin-bottom: 48px;
+      }
+      .footer-brand .logo-text {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: var(--white);
+        margin-bottom: 16px;
+        display: block;
+      }
+      .footer-brand p {
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .footer-col h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--white);
+        margin-bottom: 20px;
+        letter-spacing: 1px;
+      }
+      .footer-col ul {
+        list-style: none;
+      }
+      .footer-col ul li {
+        margin-bottom: 10px;
+      }
+      .footer-col ul li a {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer-col ul li a:hover {
+        color: var(--white);
+      }
+      .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 24px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* ─── VINFAST LOGO SVG ─── */
+      .vf-logo-svg {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* ─── HERO ROBOT ART ─── */
+      .hero-robot-scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .robot-arms-art {
+        width: 80%;
+        max-width: 900px;
+        opacity: 0.25;
+      }
+
+      /* Animations */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.8s,
+          transform 0.8s;
+      }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* ─── CAR SVG INLINE ─── */
+      .vf9-svg {
+        width: 580px;
+        height: 260px;
+      }
+      .vf8-svg,
+      .vf9-side-svg {
+        width: 380px;
+        height: 180px;
+      }
+
+      @media (max-width: 1024px) {
+        nav {
+          padding: 0 20px;
+        }
+        .nav-links {
+          display: none;
+        }
+        .about {
+          flex-direction: column;
+          padding: 80px 32px;
+        }
+        .about-title {
+          font-size: 36px;
+        }
+        .footprint {
+          padding: 80px 32px;
+        }
+        .car-lineup {
+          gap: 20px;
+        }
+        .car-item img {
+          width: 260px;
+        }
+        .history {
+          padding: 60px 32px;
+        }
+        .history-cards {
+          grid-template-columns: 1fr 1fr;
+        }
+        .vision-cards {
+          grid-template-columns: 1fr 1fr;
+        }
+        .footer-top {
+          grid-template-columns: 1fr 1fr;
+        }
+        footer {
+          padding: 40px 32px;
+        }
+      }
+
+      .fab_icon {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 72, 255, 0.3);
+        transition: all 0.3s ease;
+        object-fit: cover;
+      }
+
+      .fab_icon:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 30px rgba(0, 72, 255, 0.5);
+      }
+
+      @media (max-width: 768px) {
+        .fab_icon {
+          width: 50px;
+          height: 50px;
+          bottom: 20px;
+          right: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav>
+      <a class="nav-logo vf-logo-svg" href="#">
+        <img
+          class="logo-main"
+          alt="VinFast - Thương hiệu xe điện đầu tiên Việt Nam"
+          src="https://vinfastauto.com/themes/porto/img/new-home-page/VinFast-logo.svg"
+        />
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#">Giới thiệu</a></li>
+        <li><a href="#">Ô tô</a></li>
+        <li><a href="#">Xe máy điện</a></li>
+        <li><a href="#">Phụ kiện xe</a></li>
+        <li><a href="#">Dịch vụ hậu mãi</a></li>
+        <li><a href="#">Pin và trạm sạc</a></li>
+        <li><a href="#">Lưu trữ năng lượng</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a class="btn-account" href="#">TÀI KHOẢN</a>
+        <button
+          class="btn-trial"
+          onclick="
+            window.open(
+              'https://shop.vinfastauto.com/vn_vi/dang-ky-lai-thu.html',
+              '_blank',
+            )
+          "
+        >
+          ĐĂNG KÍ LÁI THỬ
+        </button>
+        <button class="hamburger">☰</button>
+      </div>
+    </nav>
+
+    <!-- HERO: Robot Factory -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+
+      <!-- Animated robot-arm grid art -->
+      <div class="hero-robot-scene">
+        <video
+          autoplay
+          loop
+          muted
+          playsinline
+          src="https://storage.googleapis.com/vinfast-data-01/The%20company%20behind%20VinFast%20electric%20cars.mp4"
+        ></video>
+      </div>
+    </section>
+
+    <!-- ABOUT COMPANY -->
+    <section class="about fade-in">
+      <div class="about-text">
+        <p class="about-label">Giới thiệu về</p>
+        <h1 class="about-title">Công ty VinFast</h1>
+        <p class="about-desc">
+          VinFast là công ty thành viên thuộc tập đoàn Vingroup, một trong những
+          Tập đoàn Kinh tế tư nhân đa ngành lớn nhất Châu Á
+        </p>
+        <p class="about-desc">
+          Với triết lý "Đặt khách hàng làm trọng tâm", VinFast không ngừng sáng
+          tạo để tạo ra các sản phẩm đẳng cấp và xuất sắc cho mọi người.
+        </p>
+      </div>
+      <div>
+        <img
+          src="https://static-cms-prod.vinfastauto.com/about-us.png"
+          alt="Giới thiệu về VinFast - hãng xe điện đầu tiên tại Việt Nam"
+        />
+      </div>
+    </section>
+
+    <section class="vision-banner">
+      <div class="vision-bg" id="visionBg"></div>
+      <div class="vision-overlay"></div>
+
+      <div class="vision-aerial-art">
+        <img
+          src="https://static-cms-prod.vinfastauto.com/nha-may-vinfast.jpg"
+          alt=""
+        />
+      </div>
+
+      <div class="vision-cards">
+        <div class="vision-card">
+          <h3>Tầm nhìn</h3>
+          <p>
+            Trở thành thương hiệu xe điện thông minh thúc đẩy mạnh mẽ cuộc cách
+            mạng xe điện toàn cầu.
+          </p>
+        </div>
+        <div class="vision-card">
+          <h3>Sứ mệnh</h3>
+          <p>Vì một tương lai xanh cho mọi người.</p>
+        </div>
+        <div class="vision-card">
+          <h3>Triết lý thương hiệu</h3>
+          <p>
+            Đặt khách hàng làm trọng tâm, VinFast không ngừng sáng tạo để tạo ra
+            các sản phẩm đẳng cấp và trải nghiệm xuất sắc cho mọi người.
+          </p>
+        </div>
+        <div class="vision-card">
+          <h3>Giá trị cốt lõi</h3>
+          <p>Sản phẩm đẳng cấp, giá tốt, chính sách hậu mãi vượt trội.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GLOBAL FOOTPRINT -->
+    <section class="footprint fade-in">
+      <h2 class="section-title">Dấu chân toàn cầu</h2>
+      <p class="section-sub">
+        VinFast đã nhanh chóng thiết lập sự hiện diện toàn cầu, thu hút những
+        tài năng tốt nhất từ khắp nơi trên thế giới và hợp tác với một số thương
+        hiệu mang tính biểu tượng nhất trong ngành Ô tô.
+      </p>
+
+      <div class="car-lineup">
+        <!-- VF8 Red -->
+        <div class="car-item">
+          <img
+            class="desktop-img d-none d-md-block"
+            src="https://static-cms-prod.vinfastauto.com/footprint-vf8.png"
+            alt="VF8"
+          />
+        </div>
+
+        <!-- VF9 Black -->
+        <div class="car-item">
+          <img
+            class="desktop-img d-none d-md-block"
+            src="https://static-cms-prod.vinfastauto.com/footprint-vf9.png"
+            alt="VF9"
+          />
+        </div>
+      </div>
+
+      <!-- BRAND HISTORY -->
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="logo-text">VINFAST</span>
+          <p>
+            VinFast là công ty thành viên thuộc tập đoàn Vingroup, một trong
+            những Tập đoàn Kinh tế tư nhân đa ngành lớn nhất Châu Á.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4>SẢN PHẨM</h4>
+          <ul>
+            <li><a href="#">Ô tô điện</a></li>
+            <li><a href="#">Xe máy điện</a></li>
+            <li><a href="#">Phụ kiện xe</a></li>
+            <li><a href="#">Pin và trạm sạc</a></li>
+            <li><a href="#">Lưu trữ năng lượng</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>DỊCH VỤ</h4>
+          <ul>
+            <li><a href="#">Dịch vụ hậu mãi</a></li>
+            <li><a href="#">Đặt lịch bảo dưỡng</a></li>
+            <li><a href="#">Tài chính & Bảo hiểm</a></li>
+            <li><a href="#">Tìm đại lý</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>VỀ VINFAST</h4>
+          <ul>
+            <li><a href="#">Về chúng tôi</a></li>
+            <li><a href="#">Tin tức</a></li>
+            <li><a href="#">Tuyển dụng</a></li>
+            <li><a href="#">Liên hệ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2024 VinFast. Bảo lưu mọi quyền.</span>
+        <span>Chính sách bảo mật | Điều khoản sử dụng</span>
+      </div>
+    </footer>
+
+    <script>
+      // Scroll-based fade-in
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("visible");
+          });
+        },
+        { threshold: 0.15 },
+      );
+      document
+        .querySelectorAll(".fade-in")
+        .forEach((el) => observer.observe(el));
+
+      // Parallax on vision bg
+      window.addEventListener("scroll", () => {
+        const bg = document.getElementById("visionBg");
+        if (bg) {
+          const rect = bg.parentElement.getBoundingClientRect();
+          const offset = -rect.top * 0.2;
+          bg.style.transform = `scale(1.05) translateY(${offset}px)`;
+        }
+      });
+
+      // Timeline switcher
+      const historyData = {
+        2023: [
+          {
+            date: "01.03.2023",
+            desc: "VinFast chính thức ra mắt tại thị trường Mỹ, Canada và châu Âu với mẫu VF 8 và VF 9.",
+            color: "#0048FF",
+          },
+          {
+            date: "15.08.2023",
+            desc: "VinFast niêm yết trên sàn chứng khoán Nasdaq, trở thành hãng xe Việt Nam đầu tiên lên sàn Mỹ.",
+            color: "#0033cc",
+          },
+          {
+            date: "20.11.2023",
+            desc: "Ra mắt các mẫu VF 3, VF 6, VF 7 cùng loạt sản phẩm xe điện mới nhất.",
+            color: "#004499",
+          },
+          {
+            date: "31.12.2023",
+            desc: "VinFast xuất khẩu hơn 10.000 xe điện ra thị trường quốc tế.",
+            color: "#002277",
+          },
+        ],
+        2022: [
+          {
+            date: "12.01.2022",
+            desc: "VinFast ra mắt lineup xe điện mới tại CES Las Vegas bao gồm VF 5, VF 6, VF 7, VF 8, VF 9.",
+            color: "#cc2200",
+          },
+          {
+            date: "20.03.2022",
+            desc: "Khởi công nhà máy VinFast tại Bắc Carolina, Mỹ.",
+            color: "#aa1100",
+          },
+          {
+            date: "25.11.2022",
+            desc: "Xuất xưởng lô xe VF 8 đầu tiên xuất khẩu sang Mỹ và Canada.",
+            color: "#881100",
+          },
+          {
+            date: "10.12.2022",
+            desc: "VinFast đạt doanh số 24.000 xe trong năm 2022.",
+            color: "#660000",
+          },
+        ],
+        2021: [
+          {
+            date: "01.06.2021",
+            desc: "VinFast chính thức chuyển đổi sang mô hình sản xuất xe điện 100%.",
+            color: "#006600",
+          },
+          {
+            date: "20.10.2021",
+            desc: "Ra mắt thương hiệu VinFast tại Los Angeles Motor Show.",
+            color: "#004400",
+          },
+          {
+            date: "15.12.2021",
+            desc: "VinFast đầu tư 2 tỷ USD vào nhà máy xe điện tại Mỹ.",
+            color: "#002200",
+          },
+          {
+            date: "31.12.2021",
+            desc: "Tổng công suất nhà máy Hải Phòng đạt 250,000 xe/năm.",
+            color: "#001100",
+          },
+        ],
+        2020: [
+          {
+            date: "20.03.2020",
+            desc: "VinFast ra mắt mẫu xe Fadil phiên bản nâng cấp.",
+            color: "#336699",
+          },
+          {
+            date: "01.09.2020",
+            desc: "Xuất khẩu mẫu xe VinFast Lux sang Úc và một số thị trường Đông Nam Á.",
+            color: "#224477",
+          },
+          {
+            date: "15.11.2020",
+            desc: "VinFast đạt mốc sản xuất 50,000 xe tại Việt Nam.",
+            color: "#112255",
+          },
+          {
+            date: "20.12.2020",
+            desc: "Ký hợp đồng hợp tác chiến lược với các nhà cung cấp pin hàng đầu thế giới.",
+            color: "#001133",
+          },
+        ],
+        2019: [
+          {
+            date: "15.02.2019",
+            desc: "VinFast xuất xưởng những chiếc xe đầu tiên từ nhà máy Hải Phòng.",
+            color: "#886622",
+          },
+          {
+            date: "01.07.2019",
+            desc: "Ra mắt mẫu xe thương mại VinFast Bus điện.",
+            color: "#664400",
+          },
+          {
+            date: "20.11.2019",
+            desc: "VinFast mở rộng mạng lưới đại lý lên 60 showroom toàn quốc.",
+            color: "#442200",
+          },
+          {
+            date: "12.12.2019",
+            desc: 'Giành giải thưởng "Thương hiệu ô tô của năm" tại Việt Nam.',
+            color: "#221100",
+          },
+        ],
+        2018: [
+          {
+            date: "20.11.2018",
+            desc: "VinFast ra mắt 3 mẫu ô tô đầu tiên tại Việt Nam gồm Lux SA2.0, Lux A2.0 và Fadil tại Công viên Thống Nhất (Hà Nội).",
+            color: "#2a6a2a",
+          },
+          {
+            date: "03.11.2018",
+            desc: "VinFast khánh thành nhà máy xe máy điện và ra mắt mẫu xe điện đầu tiên tại Việt Nam: VinFast Klara A1, Klara A2.",
+            color: "#1a5a1a",
+          },
+          {
+            date: "01.01.2018",
+            desc: 'VinFast ra mắt 2 mẫu xe VinFast Lux A2.0 và Lux SA2.0 tại Paris Motor Show (Pháp), được vinh danh là "Ngôi sao mới".',
+            color: "#0a4a0a",
+          },
+          {
+            date: "02.09.2017",
+            desc: "VinFast ra đời bằng lễ khởi công xây dựng nhà máy.",
+            color: "#003a00",
+          },
+        ],
+        2017: [
+          {
+            date: "02.09.2017",
+            desc: "Lễ khởi công xây dựng tổ hợp sản xuất VinFast tại Hải Phòng, Việt Nam.",
+            color: "#1a3a7a",
+          },
+          {
+            date: "15.10.2017",
+            desc: "VinFast ký kết hợp đồng hợp tác với BMW, Bosch và nhiều đối tác công nghệ hàng đầu.",
+            color: "#0a2a6a",
+          },
+          {
+            date: "01.12.2017",
+            desc: "Hoàn thành giai đoạn 1 của nhà máy với tổng diện tích 335 ha tại Hải Phòng.",
+            color: "#001a5a",
+          },
+          {
+            date: "31.12.2017",
+            desc: "VinFast hoàn thiện đội ngũ lãnh đạo với các chuyên gia từ GM, Volkswagen, BMW.",
+            color: "#00124a",
+          },
+        ],
+      };
+
+      function switchYear(year) {
+        document
+          .querySelectorAll(".timeline-year")
+          .forEach((el) => el.classList.remove("active"));
+        document.querySelector(`[data-year="${year}"]`).classList.add("active");
+
+        const cards = document.getElementById("historyCards");
+        cards.style.opacity = "0";
+        cards.style.transform = "translateY(20px)";
+
+        setTimeout(() => {
+          const data = historyData[year] || historyData["2018"];
+          cards.innerHTML = data
+            .map(
+              (item) => `
+        <div class="history-card">
+          <div style="width:100%;height:180px;background:${item.color};display:flex;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden;position:relative">
+            <svg width="100%" height="100%" viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" fill="none">
+              <rect width="400" height="180" fill="${item.color}"/>
+              <circle cx="200" cy="90" r="60" fill="rgba(255,255,255,0.08)"/>
+              <circle cx="200" cy="90" r="35" fill="rgba(255,255,255,0.06)"/>
+              <path d="M184 87 L197 100 L216 78" stroke="rgba(255,255,255,0.6)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <text x="200" y="158" fill="rgba(255,255,255,0.5)" font-size="11" font-family="Arial" text-anchor="middle">${year}</text>
+            </svg>
+          </div>
+          <div class="hdate">${item.date}</div>
+          <div class="hdesc">${item.desc}</div>
+        </div>
+      `,
+            )
+            .join("");
+
+          cards.style.transition = "opacity 0.4s, transform 0.4s";
+          cards.style.opacity = "1";
+          cards.style.transform = "translateY(0)";
+        }, 250);
+      }
+    </script>
+
+    <img
+      id="fab_icon"
+      src="https://cdn-media.vinbase.ai/avatar/20250429074721_image (1).jpg"
+      class="fab_icon"
+      alt="Chatbot VinFast"
+      onclick="toggleVFChat()"
+      title="Chat với chúng tôi"
+    />
+
+    <script src="chatbot-widget.js"></script>
+  </body>
+</html>

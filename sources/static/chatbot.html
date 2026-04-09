@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VinFast 3D Showroom â€“ Chatbot</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d0f12;
+      --surface: #161a20;
+      --surface2: #1e242c;
+      --surface3: #252d38;
+      --border: #2a3340;
+      --accent: #4f9cf9;
+      --accent2: #7c5cf9;
+      --text: #e8edf5;
+      --text2: #8a95a3;
+      --text3: #4d5a6b;
+      --radius: 14px;
+      --user-bubble: #1e3a5f;
+      --bot-bubble: #1a2030;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      font-family: "DM Sans", sans-serif;
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .window {
+      width: 920px;
+      height: 700px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow:
+        0 0 60px rgba(79, 156, 249, 0.06),
+        0 40px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Titlebar */
+    .titlebar {
+      height: 48px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot.r {
+      background: #ff5f57;
+    }
+
+    .dot.y {
+      background: #febc2e;
+    }
+
+    .dot.g {
+      background: #28c840;
+    }
+
+    .title-center {
+      flex: 1;
+      text-align: center;
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      color: var(--text3);
+      letter-spacing: 0.08em;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #28c840;
+      box-shadow: 0 0 6px #28c840;
+    }
+
+    /* Chat area */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .chat-area::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-area::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    /* Messages */
+    .msg {
+      display: flex;
+      gap: 10px;
+      max-width: 100%;
+      align-items: flex-start;
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .avatar.bot {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff;
+    }
+
+    .avatar.user {
+      background: var(--surface3);
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+
+    .bubble {
+      padding: 11px 15px;
+      border-radius: 16px;
+      font-size: 13.5px;
+      line-height: 1.65;
+      max-width: 560px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg.bot .bubble {
+      background: var(--bot-bubble);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .msg.user .bubble {
+      background: var(--user-bubble);
+      border: 1px solid #1d3f6e;
+      border-bottom-right-radius: 4px;
+      color: var(--text);
+    }
+
+    .bubble code {
+      background: #0d0f12;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: "Space Mono", monospace;
+      color: var(--accent);
+    }
+
+    .bubble strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* 3D Model Card */
+    .model-card {
+      margin-top: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      width: 480px;
+    }
+
+    .model-header {
+      padding: 10px 14px;
+      background: var(--surface3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text2);
+      font-family: "Space Mono", monospace;
+    }
+
+    .model-header svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .model-filename {
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: auto;
+    }
+
+    .model-canvas-wrap {
+      position: relative;
+      height: 280px;
+      background: #080a0d;
+      cursor: grab;
+    }
+
+    .model-canvas-wrap:active {
+      cursor: grabbing;
+    }
+
+    .model-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .loader-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #080a0d;
+      pointer-events: none;
+    }
+
+    .loader-overlay.hidden {
+      display: none;
+    }
+
+    .loader-spinner {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loader-txt {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: "Space Mono", monospace;
+    }
+
+    .model-controls {
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .ctrl-btn {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      border-radius: 8px;
+      padding: 4px 11px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: "DM Sans", sans-serif;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .ctrl-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Typing indicator */
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 0;
+    }
+
+    .typing span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text3);
+      animation: bounce 0.9s infinite;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Input row */
+    .input-row {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .input-wrap {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrap:focus-within {
+      border-color: var(--accent);
+    }
+
+    #chatInput {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      font-size: 13.5px;
+      padding: 10px 0;
+      caret-color: var(--accent);
+    }
+
+    #chatInput::placeholder {
+      color: var(--text3);
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition:
+        opacity 0.15s,
+        transform 0.1s;
+    }
+
+    .send-btn:hover {
+      opacity: 0.85;
+    }
+
+    .send-btn:active {
+      transform: scale(0.94);
+    }
+
+    .send-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Tool call indicator */
+    .tool-call-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-family: "Space Mono", monospace;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .tool-call-badge .tool-spinner {
+      width: 12px;
+      height: 12px;
+      border: 1.5px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dots">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+      </div>
+      <div class="title-center">VINFAST 3D SHOWROOM</div>
+      <div class="status-dot"></div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <!-- Welcome message -->
+      <div class="msg bot">
+        <div class="avatar bot">AI</div>
+        <div class="bubble">
+          Xin chĂ o! TĂ´i lĂ  trá»£ lĂ½ showroom VinFast 3D. đŸ—<br /><br />
+          Báº¡n cĂ³ thá»ƒ há»i tĂ´i vá»:<br />
+          â€¢ <strong>ThĂ´ng sá»‘ xe</strong> VinFast (VF 3, VF 9, Lux A2.0, Lux
+          SA2.0)<br />
+          â€¢ <strong>Xem model 3D</strong> cá»§a cĂ¡c dĂ²ng xe<br />
+          â€¢ <strong>TĂ¬m Ä‘Ă¡nh giĂ¡</strong> tá»« internet<br /><br />
+          HĂ£y thá»­: <em>"Cho tĂ´i xem model 3D VinFast VF 9"</em>
+        </div>
+      </div>
+
+      <!-- Typing indicator (hidden) -->
+      <div class="msg bot" id="typingMsg" style="display: none">
+        <div class="avatar bot">AI</div>
+        <div class="bubble">
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-row">
+      <div class="input-wrap">
+        <input id="chatInput" type="text" placeholder="Há»i vá» xe VinFast, xem model 3D, tĂ¬m Ä‘Ă¡nh giĂ¡..." />
+      </div>
+      <button class="send-btn" id="sendBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    /* ================================================================
+     *  CONFIG
+     * ================================================================ */
+    const API_BASE = "http://127.0.0.1:8000";
+    const GRAPH_NAME = "agent";
+
+    // Maps keywords in AI response â†’ GLB filename
+    const VINFAST_GLB_MAP = {
+      "vf 3": "vinfast_vf3.glb",
+      vf3: "vinfast_vf3.glb",
+      "vf 9": "vinfast_vf9.glb",
+      vf9: "vinfast_vf9.glb",
+      "lux a2": "vinfast_lux.glb",
+      "lux sa2": "vinfast_lux.glb",
+    };
+
+    /* ================================================================
+     *  STATE
+     * ================================================================ */
+    let threadId = null;
+    let isSending = false;
+
+    /* ================================================================
+     *  DOM REFS
+     * ================================================================ */
+    const chatArea = document.getElementById("chatArea");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const typingMsg = document.getElementById("typingMsg");
+
+    /* ================================================================
+     *  LANGGRAPH API â€“ CREATE THREAD
+     * ================================================================ */
+    async function ensureThread() {
+      if (threadId) return threadId;
+      const res = await fetch(`${API_BASE}/threads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) throw new Error("KhĂ´ng thá»ƒ táº¡o thread: " + res.status);
+      const data = await res.json();
+      threadId = data.thread_id;
+      console.log("[Thread created]", threadId);
+      return threadId;
+    }
+
+    /* ================================================================
+     *  LANGGRAPH API â€“ STREAM RUN
+     * ================================================================ */
+    async function streamRun(userMessage) {
+      const tid = await ensureThread();
+      const res = await fetch(`${API_BASE}/threads/${tid}/runs/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assistant_id: GRAPH_NAME,
+          input: {
+            messages: [{ role: "user", content: userMessage }],
+          },
+          stream_mode: "messages",
+        }),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Stream lá»—i (${res.status}): ${errText}`);
+      }
+      return res.body;
+    }
+
+    /* ================================================================
+     *  PARSE SSE STREAM  (stream_mode="messages")
+     *
+     *  Format:
+     *    event: messages/partial
+     *    data: [<message_object>, <metadata>]
+     *
+     *    event: messages/complete
+     *    data: [<message_object>, <metadata>]
+     * ================================================================ */
+    async function readSSEStream(body, onToken, onToolCall, onDone) {
+      const reader = body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullText = "";
+      let currentEvent = "";
+      const seenToolCalls = new Set();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop(); // keep incomplete last line
+
+        for (const line of lines) {
+          if (line.startsWith("event:")) {
+            currentEvent = line.slice(6).trim();
+            continue;
+          }
+          if (!line.startsWith("data:")) continue;
+
+          const eventType = currentEvent;
+          if (
+            eventType !== "messages/partial" &&
+            eventType !== "messages/complete"
+          )
+            continue;
+
+          try {
+            const raw = JSON.parse(line.slice(5).trim());
+            const msg = Array.isArray(raw) ? raw[0] : raw;
+
+            // --- AI text content (streaming tokens) ---
+            if (msg.type === "ai" && msg.content) {
+              let text = "";
+              if (typeof msg.content === "string") {
+                text = msg.content;
+              } else if (Array.isArray(msg.content)) {
+                text = msg.content
+                  .filter((c) => c.type === "text")
+                  .map((c) => c.text)
+                  .join("");
+              }
+              if (text && text !== fullText) {
+                const delta = text.slice(fullText.length);
+                fullText = text;
+                if (delta) onToken(delta, fullText);
+              }
+            }
+
+            // --- Tool calls ---
+            if (
+              msg.type === "ai" &&
+              msg.tool_calls &&
+              msg.tool_calls.length
+            ) {
+              for (const tc of msg.tool_calls) {
+                if (!seenToolCalls.has(tc.name)) {
+                  seenToolCalls.add(tc.name);
+                  onToolCall(tc.name, tc.args);
+                }
+              }
+            }
+
+            // --- Tool results (response from ToolNode) ---
+            // We skip tool-type messages; we wait for final AI response.
+          } catch (_) {
+            // JSON parse error â€“ skip
+          }
+        }
+      }
+      onDone(fullText);
+    }
+
+    /* ================================================================
+     *  DETECT VINFAST MODEL IN TEXT â†’ list of GLB filenames
+     * ================================================================ */
+    function detectVinfastGLB(text) {
+      const lower = text.toLowerCase();
+      // Sort by key length DESC to match "lux sa2" before "lux a2", etc.
+      const keys = Object.keys(VINFAST_GLB_MAP).sort(
+        (a, b) => b.length - a.length,
+      );
+      const found = new Set();
+      for (const key of keys) {
+        if (lower.includes(key)) {
+          found.add(VINFAST_GLB_MAP[key]);
+        }
+      }
+      return [...found];
+    }
+
+    /* ================================================================
+     *  UI HELPERS
+     * ================================================================ */
+    function scrollBottom() {
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      const d = document.createElement("div");
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    function formatBotText(text) {
+      let html = escapeHtml(text);
+      html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      html = html.replace(/`(.+?)`/g, "<code>$1</code>");
+      html = html.replace(/\n/g, "<br>");
+      return html;
+    }
+
+    function appendUserMsg(text) {
+      const el = document.createElement("div");
+      el.className = "msg user";
+      el.innerHTML = `<div class="avatar user">U</div><div class="bubble">${escapeHtml(text)}</div>`;
+      chatArea.insertBefore(el, typingMsg);
+      scrollBottom();
+    }
+
+    function createBotMsgEl() {
+      const el = document.createElement("div");
+      el.className = "msg bot";
+      el.innerHTML = `<div class="avatar bot">AI</div><div class="bot-content"><div class="bubble"></div></div>`;
+      chatArea.insertBefore(el, typingMsg);
+      return el;
+    }
+
+    function showToolCallBadge(parentEl, toolName) {
+      const contentDiv = parentEl.querySelector(".bot-content");
+      if (contentDiv.querySelector(`[data-tool="${toolName}"]`)) return;
+      const badge = document.createElement("div");
+      badge.className = "tool-call-badge";
+      badge.setAttribute("data-tool", toolName);
+      const friendly =
+        {
+          get_car_specs: "Tra cá»©u thĂ´ng sá»‘ xe",
+          load_3d_model: "Táº£i model 3D",
+          search_review: "TĂ¬m Ä‘Ă¡nh giĂ¡",
+        }[toolName] || toolName;
+      badge.innerHTML = `<div class="tool-spinner"></div>${friendly}`;
+      contentDiv.insertBefore(badge, contentDiv.querySelector(".bubble"));
+      scrollBottom();
+    }
+
+    function removeToolSpinners(parentEl) {
+      parentEl
+        .querySelectorAll(".tool-call-badge .tool-spinner")
+        .forEach((s) => {
+          s.style.display = "none";
+        });
+    }
+
+    /* ================================================================
+     *  THREE.JS â€“ INLINE GLB VIEWER
+     * ================================================================ */
+    let glbCardCounter = 0;
+    const cardStates = {};
+
+    function loadGLTFLoader(cb) {
+      if (window.THREE && THREE.GLTFLoader) {
+        cb();
+        return;
+      }
+      const s = document.createElement("script");
+      s.src =
+        "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js";
+      s.onload = cb;
+      document.head.appendChild(s);
+    }
+
+    function make3DCardHTML(filename, cardId) {
+      const displayName = filename
+        .replace("vinfast_", "VinFast ")
+        .replace(".glb", "")
+        .replace("vf3", "VF 3")
+        .replace("vf9", "VF 9")
+        .replace("lux", "Lux");
+      return `
+    <div class="model-card" id="card-${cardId}">
+      <div class="model-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+        </svg>
+        <span>${escapeHtml(displayName)}</span>
+        // <span class="model-filename">${escapeHtml(filename)}</span>
+      </div>
+      <div class="model-canvas-wrap" id="wrap-${cardId}">
+        <canvas id="cv-${cardId}"></canvas>
+        <div class="loader-overlay" id="loader-${cardId}">
+          <div class="loader-spinner"></div>
+          <span class="loader-txt">Äang táº£i ${escapeHtml(displayName)}...</span>
+        </div>
+      </div>
+      <div class="model-controls">
+        <button class="ctrl-btn active" data-action="rotate" data-card="${cardId}">âŸ³ Tá»± xoay</button>
+        <button class="ctrl-btn" data-action="wire" data-card="${cardId}">â¬¡ Wireframe</button>
+        <button class="ctrl-btn" data-action="reset" data-card="${cardId}">âŒ– Reset</button>
+      </div>
+    </div>`;
+    }
+
+    function initCardThree(cardId, glbUrl) {
+      const wrap = document.getElementById(`wrap-${cardId}`);
+      const cv = document.getElementById(`cv-${cardId}`);
+      if (!wrap || !cv) return;
+
+      const W = wrap.clientWidth || 480;
+      const H = wrap.clientHeight || 280;
+      cv.width = W;
+      cv.height = H;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x080a0d);
+      const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 1000);
+      const ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+      ren.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      ren.setSize(W, H);
+      ren.outputEncoding = THREE.sRGBEncoding;
+      ren.toneMapping = THREE.ACESFilmicToneMapping;
+      ren.toneMappingExposure = 1.2;
+
+      // Lights
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+      const keyL = new THREE.DirectionalLight(0x4f9cf9, 1.4);
+      keyL.position.set(4, 5, 5);
+      scene.add(keyL);
+      const rimL = new THREE.DirectionalLight(0x7c5cf9, 0.6);
+      rimL.position.set(-4, -2, -4);
+      scene.add(rimL);
+      const fillL = new THREE.DirectionalLight(0xffffff, 0.3);
+      fillL.position.set(0, 4, -4);
+      scene.add(fillL);
+
+      // Grid
+      const grid = new THREE.GridHelper(8, 20, 0x1a2230, 0x111820);
+      grid.position.y = -1.2;
+      scene.add(grid);
+
+      const st = {
+        scene,
+        camera,
+        renderer: ren,
+        rootMesh: null,
+        autoRotate: true,
+        wireframeMode: false,
+        spherical: { theta: 0.5, phi: 1.1, r: 3.5 },
+        isDragging: false,
+        prevMouse: { x: 0, y: 0 },
+      };
+      cardStates[cardId] = st;
+
+      // Render loop
+      (function loop() {
+        requestAnimationFrame(loop);
+        if (st.autoRotate && st.rootMesh) st.rootMesh.rotation.y += 0.006;
+        const s = st.spherical;
+        camera.position.x = s.r * Math.sin(s.phi) * Math.sin(s.theta);
+        camera.position.y = s.r * Math.cos(s.phi);
+        camera.position.z = s.r * Math.sin(s.phi) * Math.cos(s.theta);
+        camera.lookAt(0, 0, 0);
+        ren.render(scene, camera);
+      })();
+
+      // Mouse orbit
+      cv.addEventListener("mousedown", (e) => {
+        st.isDragging = true;
+        st.prevMouse = { x: e.clientX, y: e.clientY };
+      });
+      cv.addEventListener("mouseup", () => (st.isDragging = false));
+      cv.addEventListener("mouseleave", () => (st.isDragging = false));
+      cv.addEventListener("mousemove", (e) => {
+        if (!st.isDragging) return;
+        st.spherical.theta -= (e.clientX - st.prevMouse.x) * 0.007;
+        st.spherical.phi = Math.max(
+          0.15,
+          Math.min(
+            Math.PI - 0.15,
+            st.spherical.phi + (e.clientY - st.prevMouse.y) * 0.007,
+          ),
+        );
+        st.prevMouse = { x: e.clientX, y: e.clientY };
+      });
+      cv.addEventListener(
+        "wheel",
+        (e) => {
+          e.preventDefault();
+          st.spherical.r = Math.max(
+            1,
+            Math.min(10, st.spherical.r + e.deltaY * 0.005),
+          );
+        },
+        { passive: false },
+      );
+
+      // Touch orbit
+      cv.addEventListener(
+        "touchstart",
+        (e) => {
+          st.isDragging = true;
+          st.prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        },
+        { passive: true },
+      );
+      cv.addEventListener("touchend", () => (st.isDragging = false));
+      cv.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!st.isDragging) return;
+          const t = e.touches[0];
+          st.spherical.theta -= (t.clientX - st.prevMouse.x) * 0.007;
+          st.spherical.phi = Math.max(
+            0.15,
+            Math.min(
+              Math.PI - 0.15,
+              st.spherical.phi + (t.clientY - st.prevMouse.y) * 0.007,
+            ),
+          );
+          st.prevMouse = { x: t.clientX, y: t.clientY };
+        },
+        { passive: true },
+      );
+
+      // Load GLB
+      loadGLTFLoader(() => {
+        const ldr = new THREE.GLTFLoader();
+        ldr.load(
+          glbUrl,
+          (gltf) => {
+            if (st.rootMesh) scene.remove(st.rootMesh);
+            st.rootMesh = gltf.scene;
+            const box = new THREE.Box3().setFromObject(st.rootMesh);
+            const sz = box.getSize(new THREE.Vector3());
+            const maxD = Math.max(sz.x, sz.y, sz.z);
+            const sc = 2.5 / maxD;
+            st.rootMesh.scale.setScalar(sc);
+            const ctr = box.getCenter(new THREE.Vector3());
+            st.rootMesh.position.sub(ctr.multiplyScalar(sc));
+            scene.add(st.rootMesh);
+            const lo = document.getElementById(`loader-${cardId}`);
+            if (lo) lo.classList.add("hidden");
+          },
+          undefined,
+          (err) => {
+            console.error("GLB load error:", err);
+            const lo = document.getElementById(`loader-${cardId}`);
+            if (lo) {
+              lo.querySelector(".loader-txt").textContent = "Lá»—i táº£i model!";
+              lo.querySelector(".loader-spinner").style.display = "none";
+            }
+          },
+        );
+      });
+    }
+
+    // Delegate 3D-card control buttons
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const cid = btn.dataset.card;
+      const st = cardStates[cid];
+      if (!st) return;
+
+      if (action === "rotate") {
+        st.autoRotate = !st.autoRotate;
+        btn.classList.toggle("active", st.autoRotate);
+      } else if (action === "wire") {
+        st.wireframeMode = !st.wireframeMode;
+        btn.classList.toggle("active", st.wireframeMode);
+        if (st.rootMesh)
+          st.rootMesh.traverse((c) => {
+            if (c.isMesh && c.material)
+              c.material.wireframe = st.wireframeMode;
+          });
+      } else if (action === "reset") {
+        st.spherical = { theta: 0.5, phi: 1.1, r: 3.5 };
+        if (st.rootMesh) st.rootMesh.rotation.set(0, 0, 0);
+        st.autoRotate = true;
+        const card = document.getElementById(`card-${cid}`);
+        if (card)
+          card
+            .querySelector('[data-action="rotate"]')
+            .classList.add("active");
+      }
+    });
+
+    /* ================================================================
+     *  APPEND 3D CARDS TO A BOT MESSAGE
+     * ================================================================ */
+    function append3DCards(parentEl, glbFiles) {
+      const contentDiv = parentEl.querySelector(".bot-content");
+      for (const filename of glbFiles) {
+        const cardId = "glb" + ++glbCardCounter;
+        const glbUrl = `${API_BASE}/data_vf/models/${filename}`;
+        contentDiv.insertAdjacentHTML(
+          "beforeend",
+          make3DCardHTML(filename, cardId),
+        );
+        // Init Three.js after DOM paint
+        requestAnimationFrame(() => {
+          initCardThree(cardId, glbUrl);
+          scrollBottom();
+        });
+      }
+      scrollBottom();
+    }
+
+    /* ================================================================
+     *  FALLBACK: fetch final answer from thread state
+     *  (in case streaming didn't capture the final AI message)
+     * ================================================================ */
+    async function fetchFinalAnswer(botEl, bubble) {
+      try {
+        const res = await fetch(`${API_BASE}/threads/${threadId}/state`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const msgs = data.values?.messages || [];
+        // Find last AI message with real content (not a tool call)
+        const lastAI = [...msgs]
+          .reverse()
+          .find(
+            (m) =>
+              m.type === "ai" &&
+              m.content &&
+              (!m.tool_calls || m.tool_calls.length === 0),
+          );
+        if (!lastAI) return;
+        const text =
+          typeof lastAI.content === "string"
+            ? lastAI.content
+            : Array.isArray(lastAI.content)
+              ? lastAI.content
+                .filter((c) => c.type === "text")
+                .map((c) => c.text)
+                .join("")
+              : "";
+        if (text) {
+          bubble.innerHTML = formatBotText(text);
+          const glbFiles = detectVinfastGLB(text);
+          if (glbFiles.length > 0) append3DCards(botEl, glbFiles);
+        }
+      } catch (_) { }
+    }
+
+    /* ================================================================
+     *  SEND MESSAGE â€“ main flow
+     * ================================================================ */
+    async function sendMessage() {
+      const val = chatInput.value.trim();
+      if (!val || isSending) return;
+      chatInput.value = "";
+      isSending = true;
+      sendBtn.disabled = true;
+
+      appendUserMsg(val);
+      typingMsg.style.display = "flex";
+      scrollBottom();
+
+      try {
+        const body = await streamRun(val);
+        typingMsg.style.display = "none";
+
+        const botEl = createBotMsgEl();
+        const bubble = botEl.querySelector(".bubble");
+        let receivedText = false;
+
+        await readSSEStream(
+          body,
+          // onToken â€“ streaming text
+          (delta, fullText) => {
+            receivedText = true;
+            bubble.innerHTML = formatBotText(fullText);
+            scrollBottom();
+          },
+          // onToolCall â€“ show badge
+          (toolName) => {
+            showToolCallBadge(botEl, toolName);
+          },
+          // onDone
+          async (fullText) => {
+            removeToolSpinners(botEl);
+
+            // If we got text via streaming, check for 3D models
+            if (fullText) {
+              const glbFiles = detectVinfastGLB(fullText);
+              if (glbFiles.length > 0) append3DCards(botEl, glbFiles);
+            }
+          },
+        );
+
+        // Fallback: if stream didn't produce AI text, fetch from thread state
+        if (!receivedText || !bubble.textContent.trim()) {
+          await fetchFinalAnswer(botEl, bubble);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        typingMsg.style.display = "none";
+        const errEl = createBotMsgEl();
+        errEl.querySelector(".bubble").innerHTML =
+          `<span style="color:#ff5f57">â  Lá»—i: ${escapeHtml(err.message)}</span>`;
+      }
+
+      isSending = false;
+      sendBtn.disabled = false;
+      scrollBottom();
+    }
+
+    /* ================================================================
+     *  EVENT LISTENERS
+     * ================================================================ */
+    sendBtn.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Focus input
+    window.addEventListener("load", () => chatInput.focus());
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VinFast 3D Showroom</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #0d0d0d;
+        color: #f0f0f0;
+        font-family: "Segoe UI", sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      #loading-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 10;
+        gap: 16px;
+      }
+      #loading-overlay .spinner {
+        width: 56px;
+        height: 56px;
+        border: 5px solid #333;
+        border-top-color: #00d2ff;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #loading-overlay p {
+        font-size: 1rem;
+        color: #aaa;
+      }
+
+      #error-overlay {
+        position: absolute;
+        inset: 0;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 10;
+        gap: 12px;
+      }
+      #error-overlay p {
+        color: #ff6b6b;
+        font-size: 1.1rem;
+      }
+
+      #canvas-container {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #hud {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 5;
+      }
+      #hud h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, #00d2ff, #a020f0);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 4px;
+      }
+      #hud p {
+        font-size: 0.8rem;
+        color: #888;
+      }
+
+      #controls {
+        position: absolute;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        z-index: 5;
+      }
+      .ctrl-btn {
+        padding: 8px 18px;
+        border-radius: 20px;
+        border: 1px solid #444;
+        background: rgba(255, 255, 255, 0.05);
+        color: #ccc;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition:
+          background 0.2s,
+          border-color 0.2s;
+      }
+      .ctrl-btn:hover {
+        background: rgba(0, 210, 255, 0.15);
+        border-color: #00d2ff;
+        color: #fff;
+      }
+
+      #info-panel {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 240px;
+        background: rgba(20, 20, 30, 0.85);
+        border: 1px solid #2a2a3a;
+        border-radius: 12px;
+        padding: 16px;
+        z-index: 5;
+        backdrop-filter: blur(8px);
+      }
+      #info-panel h2 {
+        font-size: 1rem;
+        color: #00d2ff;
+        margin-bottom: 10px;
+      }
+      #info-panel ul {
+        list-style: none;
+      }
+      #info-panel ul li {
+        font-size: 0.78rem;
+        color: #bbb;
+        padding: 3px 0;
+        border-bottom: 1px solid #1e1e2e;
+      }
+      #info-panel ul li:last-child {
+        border-bottom: none;
+      }
+      #info-panel ul li span {
+        color: #fff;
+        float: right;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <p id="loading-text">Loading 3D model…</p>
+    </div>
+
+    <!-- Error overlay -->
+    <div id="error-overlay">
+      <p id="error-text">⚠️ Failed to load model.</p>
+      <p style="color: #666; font-size: 0.85rem">
+        Check the console for details.
+      </p>
+    </div>
+
+    <!-- HUD top-left -->
+    <div id="hud">
+      <h1>VinFast 3D Showroom</h1>
+      <p id="model-label">Loading…</p>
+    </div>
+
+    <!-- Info panel top-right -->
+    <div id="info-panel">
+      <h2>Controls</h2>
+      <ul>
+        <li>Orbit <span>Left-drag</span></li>
+        <li>Zoom <span>Scroll</span></li>
+        <li>Pan <span>Right-drag</span></li>
+        <li>Reset <span>Double-click</span></li>
+      </ul>
+    </div>
+
+    <!-- Bottom controls -->
+    <div id="controls">
+      <button class="ctrl-btn" id="btn-wireframe">Wireframe</button>
+      <button class="ctrl-btn" id="btn-reset">Reset Camera</button>
+      <button class="ctrl-btn" id="btn-autorotate">Auto-Rotate</button>
+      <button class="ctrl-btn" id="btn-fullscreen">Fullscreen</button>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <!-- Three.js r158 via CDN -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+      import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
+
+      // -----------------------------------------------------------------------
+      // Parse query param: ?model=vinfast_vf9
+      // -----------------------------------------------------------------------
+      const params = new URLSearchParams(window.location.search);
+      const modelSlug = params.get("model") || "vinfast_vf9";
+      const glbUrl = `/data_vf/models/${modelSlug}.glb`;
+
+      // Human-readable names
+      const MODEL_NAMES = {
+        vinfast_vf3: "VinFast VF 3",
+        vinfast_vf9: "VinFast VF 9",
+        vinfast_lux: "VinFast Lux",
+      };
+      document.getElementById("model-label").textContent =
+        MODEL_NAMES[modelSlug] || modelSlug;
+
+      // -----------------------------------------------------------------------
+      // Scene setup
+      // -----------------------------------------------------------------------
+      const container = document.getElementById("canvas-container");
+      const W = window.innerWidth,
+        H = window.innerHeight;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(W, H);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      container.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0d0d0d);
+      scene.fog = new THREE.Fog(0x0d0d0d, 20, 60);
+
+      const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 200);
+      camera.position.set(4, 2, 6);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 1;
+      controls.maxDistance = 30;
+      controls.maxPolarAngle = Math.PI / 2;
+
+      // -----------------------------------------------------------------------
+      // Lights
+      // -----------------------------------------------------------------------
+      const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+      scene.add(ambient);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
+      dirLight.position.set(5, 10, 7.5);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.set(2048, 2048);
+      dirLight.shadow.camera.near = 0.1;
+      dirLight.shadow.camera.far = 50;
+      dirLight.shadow.camera.left = -8;
+      dirLight.shadow.camera.right = 8;
+      dirLight.shadow.camera.top = 8;
+      dirLight.shadow.camera.bottom = -8;
+      scene.add(dirLight);
+
+      // Accent fill light
+      const fillLight = new THREE.DirectionalLight(0x4488ff, 0.6);
+      fillLight.position.set(-5, 3, -5);
+      scene.add(fillLight);
+
+      // -----------------------------------------------------------------------
+      // Floor grid
+      // -----------------------------------------------------------------------
+      const grid = new THREE.GridHelper(30, 30, 0x222233, 0x222233);
+      grid.material.opacity = 0.4;
+      grid.material.transparent = true;
+      scene.add(grid);
+
+      const floorGeo = new THREE.PlaneGeometry(30, 30);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x111122,
+        roughness: 0.9,
+        metalness: 0.1,
+      });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      // -----------------------------------------------------------------------
+      // Load GLTF / GLB
+      // -----------------------------------------------------------------------
+      const loadingText = document.getElementById("loading-text");
+      const loadingOverlay = document.getElementById("loading-overlay");
+      const errorOverlay = document.getElementById("error-overlay");
+
+      const loader = new GLTFLoader();
+      let carModel = null;
+      let defaultCameraPos = null;
+
+      loader.load(
+        glbUrl,
+        (gltf) => {
+          carModel = gltf.scene;
+
+          // Centre & scale the model
+          const box = new THREE.Box3().setFromObject(carModel);
+          const centre = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 3.5 / maxDim;
+          carModel.scale.setScalar(scale);
+          carModel.position.sub(centre.multiplyScalar(scale));
+          // Sit on floor
+          const box2 = new THREE.Box3().setFromObject(carModel);
+          carModel.position.y -= box2.min.y;
+
+          carModel.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          scene.add(carModel);
+
+          // Position camera to see the whole car
+          const diagonal = Math.sqrt(size.x ** 2 + size.z ** 2) * scale;
+          camera.position.set(diagonal * 1.4, diagonal * 0.8, diagonal * 1.8);
+          camera.lookAt(0, (size.y * scale) / 2, 0);
+          controls.target.set(0, (size.y * scale) / 2, 0);
+          controls.update();
+          defaultCameraPos = camera.position.clone();
+
+          loadingOverlay.style.display = "none";
+        },
+        (progress) => {
+          if (progress.total > 0) {
+            const pct = Math.round((progress.loaded / progress.total) * 100);
+            loadingText.textContent = `Loading 3D model… ${pct}%`;
+          }
+        },
+        (error) => {
+          console.error("GLB load error:", error);
+          loadingOverlay.style.display = "none";
+          errorOverlay.style.display = "flex";
+          document.getElementById("error-text").textContent =
+            `⚠️ Could not load: ${glbUrl}`;
+        },
+      );
+
+      // -----------------------------------------------------------------------
+      // UI Controls
+      // -----------------------------------------------------------------------
+      let wireframeOn = false;
+      document.getElementById("btn-wireframe").addEventListener("click", () => {
+        wireframeOn = !wireframeOn;
+        if (carModel) {
+          carModel.traverse((child) => {
+            if (child.isMesh) child.material.wireframe = wireframeOn;
+          });
+        }
+      });
+
+      document.getElementById("btn-reset").addEventListener("click", () => {
+        if (defaultCameraPos) {
+          camera.position.copy(defaultCameraPos);
+          controls.target.set(0, 1, 0);
+          controls.update();
+        }
+      });
+
+      let autoRotate = false;
+      document
+        .getElementById("btn-autorotate")
+        .addEventListener("click", () => {
+          autoRotate = !autoRotate;
+          controls.autoRotate = autoRotate;
+        });
+
+      document
+        .getElementById("btn-fullscreen")
+        .addEventListener("click", () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        });
+
+      // Double-click to reset
+      renderer.domElement.addEventListener("dblclick", () => {
+        document.getElementById("btn-reset").click();
+      });
+
+      // -----------------------------------------------------------------------
+      // Resize handler
+      // -----------------------------------------------------------------------
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // -----------------------------------------------------------------------
+      // Render loop
+      // -----------------------------------------------------------------------
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    </script>
+  </body>
+</html>
